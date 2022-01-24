@@ -113,7 +113,7 @@ func findBlockNumbers(client *ethclient.Client,
 			log.Fatal(err)
 		}
 
-		log.Printf("Checking blocks from %s till %s . . .", fromBlock.String(), toBlock.String())
+		log.Printf("Checking blocks from %s to %s . . .", fromBlock.String(), toBlock.String())
 
 		for _, txLog := range logs {
 			blockNumberList = append(blockNumberList, big.NewInt(int64(txLog.BlockNumber)))
