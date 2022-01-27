@@ -1,18 +1,18 @@
-package main
+package bsc_scan
 
 import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 )
 
 type ResponseApi struct {
-	Status 		string      `json:"status"`
-	Message 	string      `json:"message"`
+	Status 		string       `json:"status"`
+	Message 	string          `json:"message"`
 	Result 		[]*TxDetails `json:"result"`
 }
 
@@ -37,7 +37,7 @@ type TxDetails struct {
 	Confirmations     string `json:"confirmations"`
 }
 
-func getTxListFromBscScan(contractAddress common.Address, apiKey string) {
+func GetTxListFromBscScan(contractAddress common.Address, apiKey string) {
 
 	var txDetailList = make([]*TxDetails, 0, 1024)
 	var offset = 25
@@ -96,6 +96,6 @@ func getTxListFromBscScan(contractAddress common.Address, apiKey string) {
 		log.Fatal("json.marshal failed", err)
 	}
 
-	log.Println("tx count: ", len(txDetailList))
-	log.Printf("%s\n", result)
+	log.Debug("tx count: ", len(txDetailList))
+	log.Debugf("%s\n", result)
 }
