@@ -11,6 +11,9 @@ type Config struct {
 	ContractCreationTxHash		string `env:"CONTRACT_CREATION_TX_HASH"`
 	BscApiKey					string `env:"BSC_API_KEY"`
 	BscNodeAddresses			string `env:"BSC_NODE_ADDRESSES"`
+	ConnectionPoolMaxTotal		int `env:"CONNECTION_POOL_MAX_TOTAL"`
+	ConnectionPoolMaxIDLE		int `env:"CONNECTION_POOL_MAX_IDLE"`
+	ConnectionPoolMinIDLE		int `env:"CONNECTION_POOL_MIN_IDLE"`
 }
 
 func LoadConfig(path string) *Config {

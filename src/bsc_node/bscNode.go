@@ -170,7 +170,6 @@ func blockNumberRangeGenerator(ctx context.Context,
 	return blockRangeStream
 }
 
-// TODO cleanup pipeline
 func fanOutPipelines(ctx context.Context,
 					contractAddress common.Address,
 					contractCreationTxHash common.Hash,
@@ -183,6 +182,10 @@ func fanOutPipelines(ctx context.Context,
 		defer func() {
 			for _, pipeline := range pipelines {
 				close(pipeline.blockRangeStream)
+				if err := app.Globals.ConnectionPool.ReturnObject(ctx, pipeline.node); err != nil {
+					log.Errorf("connectionPool.ReturnObject failed, node: %s, err: %s",
+						pipeline.node.url, err)
+				}
 			}
 
 			close(pipelineStream)
@@ -207,7 +210,7 @@ func fanOutPipelines(ctx context.Context,
 					contractCreationTxHash: contractCreationTxHash,
 					node:                   obj.(*NodeClient),
 					chainID: 				chainID,
-					blockRangeStream:       make(chan *big.Int, 128),
+					blockRangeStream:       make(chan *big.Int),
 				}
 				pipelines = append(pipelines, newPipeline)
 				pipelineStream <- newPipeline
@@ -299,8 +302,8 @@ func (pipeline Pipeline) findBlockStage(ctx context.Context) (BlockNumberReaderS
 
 					log.Infof("retry %d in checking block from %s to %s, node: %s",
 						retry, fromBlock.String(), toBlock.String(), pipeline.node.url)
-					time.Sleep(1 * time.Second)
 					retry++
+					time.Sleep(time.Duration(retry) * time.Second)
 					continue
 				}
 				log.Debugf("node: %s, Checking blocks from %s to %s . . .",
@@ -345,8 +348,8 @@ func (pipeline Pipeline) fetchBlockStage(ctx context.Context,
 
 					log.Infof("retry %d in fetching block %s, node: %s",
 						retry, blockNumber.String(), pipeline.node.url)
-					time.Sleep(1 * time.Second)
 					retry++
+					time.Sleep(time.Duration(retry) * time.Second)
 					continue
 				}
 				log.Debugf("node: %s, fetch block #%s success",
@@ -406,8 +409,8 @@ func (pipeline Pipeline) fetchTxStage(ctx context.Context,
 
 							log.Infof("retry %d in get receipt tx hash %s, node: %s",
 								retry, tx.Hash(), pipeline.node.url)
-							time.Sleep(1 * time.Second)
 							retry++
+							time.Sleep(time.Duration(retry) * time.Second)
 							continue
 						}
 

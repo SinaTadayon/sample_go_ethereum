@@ -55,7 +55,7 @@ func (w *Worker) run(task Task) {
 			}
 		}()
 
-		log.Debug("%s Launch task", w.name)
+		log.Debugf("%s Launch task", w.name)
 		// launch task
 		task()
 	}()

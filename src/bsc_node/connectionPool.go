@@ -5,6 +5,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	pool "github.com/jolestar/go-commons-pool/v2"
 	log "github.com/sirupsen/logrus"
+	"sampleGoEthereum/src/app"
 )
 
 type NodeConnection struct {
@@ -47,18 +48,12 @@ func CreateConnectionPool(ctx context.Context, connectionFactory NodeConnection)
 		})
 
 	config := &pool.ObjectPoolConfig {
-		MaxTotal:                 9,
-		MaxIdle:                  -1,
-		MinIdle:                  3,
+		MaxTotal:                 app.Globals.Config.ConnectionPoolMaxTotal,
+		MaxIdle:                  app.Globals.Config.ConnectionPoolMaxIDLE,
+		MinIdle:                  app.Globals.Config.ConnectionPoolMinIDLE,
 	}
 
 	connectionPool := pool.NewObjectPool(ctx, factory, config)
-	//connectionPool.PreparePool(ctx)
-	for i:=0; i < 9 ; i++ {
-		if err := connectionPool.AddObject(ctx); err != nil {
-			log.Fatal("connectionPool.AddObject failed", err)
-		}
-	}
-
+	connectionPool.PreparePool(ctx)
 	return connectionPool
 }
